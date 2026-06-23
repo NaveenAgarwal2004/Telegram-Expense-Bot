@@ -67,8 +67,8 @@ class TestTelegramStartupStatic:
             "run_polling must be called with drop_pending_updates=True"
         )
 
-    def test_three_add_handler_calls(self):
-        """Exactly 3 add_handler calls must appear in the __main__ block."""
+    def test_four_add_handler_calls(self):
+        """Exactly 4 add_handler calls must appear in the __main__ block."""
         block = _get_main_block_src()
         calls = [
             node for node in ast.walk(block)
@@ -78,7 +78,7 @@ class TestTelegramStartupStatic:
                 and node.func.attr == "add_handler"
             )
         ]
-        assert len(calls) == 3, f"Expected 3 add_handler calls, found {len(calls)}"
+        assert len(calls) == 4, f"Expected 4 add_handler calls, found {len(calls)}"
 
     def test_command_handler_start_registered(self):
         """A CommandHandler for 'start' must be registered."""
@@ -94,6 +94,14 @@ class TestTelegramStartupStatic:
         src = ast.unparse(block)
         assert '"today"' in src or "'today'" in src, (
             "CommandHandler for 'today' not found in __main__ block"
+        )
+
+    def test_command_handler_last_registered(self):
+        """A CommandHandler for 'last' must be registered."""
+        block = _get_main_block_src()
+        src = ast.unparse(block)
+        assert '"last"' in src or "'last'" in src, (
+            "CommandHandler for 'last' not found in __main__ block"
         )
 
 
@@ -113,6 +121,11 @@ class TestTelegramStartupRuntime:
         from handlers import cmd_today
         assert inspect.iscoroutinefunction(cmd_today), \
             "cmd_today must be an async function"
+
+    def test_cmd_last_is_coroutine_function(self):
+        from handlers import cmd_last
+        assert inspect.iscoroutinefunction(cmd_last), \
+            "cmd_last must be an async function"
 
     def test_handle_message_is_coroutine_function(self):
         from handlers import handle_message
