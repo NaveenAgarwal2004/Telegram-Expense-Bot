@@ -1,5 +1,5 @@
 services:
-  - type: worker
+  - type: web
     name: expense-bot
     runtime: docker
     dockerfilePath: ./Dockerfile
