@@ -21,22 +21,52 @@ def parse_expense(text: str) -> dict[str, str] | None:
     Returns None if no amount found or description is empty.
     """
     text = text.strip()
-    match = re.search(r'(\d+(?:\.\d+)?)', text)
-    if not match:
+    words = text.split()
+    if not words:
         return None
-    amount = match.group(1)
-    rest = (text[:match.start()] + " " + text[match.end():]).strip()
-    words = rest.split()
+
+    amount = None
+    amount_idx = -1
+    
+    # 1. Find the amount: first standalone number
+    for i, w in enumerate(words):
+        if re.match(r'^\d+(?:\.\d+)?$', w):
+            amount = w
+            amount_idx = i
+            break
+
+    if amount is None:
+        return None
+
+    # 2. Find the account: last standalone account keyword
     account = "Cash"
+    account_idx = -1
+    account_candidates = []
+    
+    for i, w in enumerate(words):
+        if i == amount_idx:
+            continue
+        clean_w = w.lower()
+        if clean_w in ACCOUNT_DISPLAY:
+            account_candidates.append((i, clean_w))
+            
+    if account_candidates:
+        account_idx, acc_kw = account_candidates[-1]
+        account = ACCOUNT_DISPLAY[acc_kw]
+
+    # 3. Build description from remaining words
     desc_parts: list[str] = []
-    for w in words:
-        if w.lower() in ACCOUNT_DISPLAY:
-            account = ACCOUNT_DISPLAY[w.lower()]
-        else:
-            desc_parts.append(w)
+    for i, w in enumerate(words):
+        if i == amount_idx:
+            continue
+        if i == account_idx:
+            continue
+        desc_parts.append(w)
+
     desc = " ".join(desc_parts).strip()
     if not desc:
         return None
+
     return {
         "description": desc.title(),
         "category":    detect_category(desc),

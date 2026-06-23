@@ -154,3 +154,41 @@ class TestParseExpense:
             result = parse_expense(f"lunch 100 {keyword}")
             assert result is not None, f"Failed for account keyword: {keyword}"
             assert result["account"] == display, f"Wrong display for {keyword}"
+
+    # ── New Natural Language Parser Tests ─────────────────────────────────────
+
+    def test_chai_cash_20(self):
+        result = parse_expense("chai cash 20")
+        assert result == {"description": "Chai", "category": "Food", "amount": "20", "account": "Cash"}
+
+    def test_20_chai(self):
+        result = parse_expense("20 chai")
+        assert result == {"description": "Chai", "category": "Food", "amount": "20", "account": "Cash"}
+
+    def test_20_chai_cash(self):
+        result = parse_expense("20 chai cash")
+        assert result == {"description": "Chai", "category": "Food", "amount": "20", "account": "Cash"}
+
+    def test_spent_20_on_chai(self):
+        result = parse_expense("spent 20 on chai")
+        assert result == {"description": "Spent On Chai", "category": "Food", "amount": "20", "account": "Cash"}
+
+    def test_spent_20_on_chai_cash(self):
+        result = parse_expense("spent 20 on chai cash")
+        assert result == {"description": "Spent On Chai", "category": "Food", "amount": "20", "account": "Cash"}
+
+    def test_food_shared_with_vivek(self):
+        result = parse_expense("food shared with vivek 220 bob")
+        assert result == {"description": "Food Shared With Vivek", "category": "Food", "amount": "220", "account": "BOB"}
+
+    def test_uber_home_to_office(self):
+        result = parse_expense("uber home to office 137 bob")
+        assert result == {"description": "Uber Home To Office", "category": "Transport", "amount": "137", "account": "BOB"}
+
+    def test_metro_card_recharge(self):
+        result = parse_expense("metro card recharge 300 bob")
+        assert result == {"description": "Metro Card Recharge", "category": "Metro", "amount": "300", "account": "BOB"}
+
+    def test_light_bill_bob(self):
+        result = parse_expense("light bill 636 bob")
+        assert result == {"description": "Light Bill", "category": "Bills", "amount": "636", "account": "BOB"}

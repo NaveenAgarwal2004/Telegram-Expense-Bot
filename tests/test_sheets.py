@@ -53,8 +53,8 @@ class TestSheetsAppend:
         assert len(row) == 5, f"Expected 5 columns, got {len(row)}: {row}"
         date_col, desc_col, cat_col, amount_col, account_col = row
 
-        # Date format: DD-MM-YYYY
-        datetime.strptime(date_col, "%d-%m-%Y")  # raises if wrong format
+        # Date format: DD-MM-YYYY HH:MM:SS
+        datetime.strptime(date_col, "%d-%m-%Y %H:%M:%S")  # raises if wrong format
 
         assert desc_col   == "Lunch"
         assert cat_col    == "Food"

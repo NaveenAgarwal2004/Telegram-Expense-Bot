@@ -38,7 +38,7 @@ async def cmd_today(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     rows = sheet.get_all_values()
     total = 0
     for r in rows:
-        if r and r[0] == today_str:
+        if r and r[0].startswith(today_str):
             try:
                 total += float(r[3])
             except (ValueError, IndexError):
@@ -54,13 +54,14 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         await update.message.reply_text("Couldn't parse that. Try: chai 20 cash")
         return
     today_str = datetime.now().strftime("%d-%m-%Y")
-    row = [today_str, result["description"], result["category"],
+    timestamp_str = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
+    row = [timestamp_str, result["description"], result["category"],
            result["amount"], result["account"]]
     try:
         sheet.append_row(row, value_input_option="USER_ENTERED")
         await update.message.reply_text(
             f"✓ Logged!\n"
-            f"  {today_str}  |  {result['description']}\n"
+            f"  {timestamp_str}  |  {result['description']}\n"
             f"  {result['category']}  ·  ₹{result['amount']}  ·  {result['account']}"
         )
     except Exception as e:
